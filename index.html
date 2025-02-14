@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoes Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #e0e5ec;
+            --shadow-color: #a3b1c6;
+            --light-shadow: #ffffff;
+            --text-color: #4a5568;
+            --accent-color: #6366f1;
+        }
+
+        .dark-mode {
+            --primary-bg: #1a1f25;
+            --shadow-color: #0d1117;
+            --light-shadow: #2d333b;
+            --text-color: #e2e8f0;
+            --accent-color: #818cf8;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 50%;
+            background: var(--primary-bg);
+            box-shadow: 5px 5px 10px var(--shadow-color),
+                       -5px -5px 10px var(--light-shadow);
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .item {
+            background: var(--primary-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 8px 8px 16px var(--shadow-color),
+                       -8px -8px 16px var(--light-shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+
+        .item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            transition: all 0.4s ease;
+        }
+
+        .item:hover img {
+            transform: scale(1.08);
+        }
+
+        .item h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 15px 0;
+            color: var(--text-color);
+        }
+
+        .add-to-cart {
+            background: var(--primary-bg);
+            color: var(--accent-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 5px 5px 10px var(--shadow-color),
+                       -5px -5px 10px var(--light-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .add-to-cart:hover {
+            transform: scale(1.05);
+            box-shadow: 7px 7px 14px var(--shadow-color),
+                       -7px -7px 14px var(--light-shadow);
+        }
+
+        .cart-section {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            height: 100vh;
+            background: var(--primary-bg);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+
+        .cart-section.active {
+            right: 0;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .cart-content {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .cart-entry {
+            background: var(--primary-bg);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 4px 4px 8px var(--shadow-color),
+                       -4px -4px 8px var(--light-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-entry img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+            padding: 0 15px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            background: var(--primary-bg);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 3px 3px 6px var(--shadow-color),
+                       -3px -3px 6px var(--light-shadow);
+            color: var(--text-color);
+        }
+
+        .cart-total {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            right: 25px;
+            background: var(--primary-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 5px 5px 10px var(--shadow-color),
+                       -5px -5px 10px var(--light-shadow);
+        }
+
+        .cart-badge {
+            position: fixed;
+            top: 20px;
+            right: 80px;
+            background: var(--accent-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 4px 4px 8px var(--shadow-color),
+                       -4px -4px 8px var(--light-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .cart-badge:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .cart-section {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .product-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .item {
+                margin: 10px 0;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </button>
+    <div class="cart-badge" onclick="toggleCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cart-count">0</span>
+    </div>
+    <div class="container">
+        <h1>Shoes Store</h1>
+        <div class="product-list" id="product-list"></div>
+    </div>
+    <div class="cart-section" id="cart-section">
+        <div class="cart-header">
+            <h2>Shopping Cart</h2>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        <div class="cart-content" id="cart-content"></div>
+        <div class="cart-total">
+            <h3>Total: $<span id="cart-total">0</span></h3>
+        </div>
+    </div>
+
+    <script>
+        const inventory = [
+            { id: 1, name: "Shoes 1", price: 100, image: "images (1).jpg" },
+            { id: 2, name: "Shoes 2", price: 129, image: "images (2).jpg" },
+            { id: 3, name: "Shoes 3", price: 89, image: "images (3).jpg" },
+        ];
+        
+        const cartItems = [];
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('.theme-toggle i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+
+        function toggleCart() {
+            document.getElementById('cart-section').classList.toggle('active');
+        }
+
+        function renderProducts() {
+            const productContainer = document.getElementById("product-list");
+            productContainer.innerHTML = inventory.map((item, idx) => `
+                <div class="item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <h3>${item.name}</h3>
+                    <p class="price">$${item.price}</p>
+                    <button class="add-to-cart" onclick="addToCart(${idx})">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(idx) {
+            const foundItem = cartItems.find(item => item.product.id === inventory[idx].id);
+            if (foundItem) {
+                foundItem.quantity++;
+            } else {
+                cartItems.push({ product: inventory[idx], quantity: 1 });
+            }
+            updateCart();
+            updateCartBadge();
+        }
+
+        function updateQuantity(idx, change) {
+            cartItems[idx].quantity += change;
+            if (cartItems[idx].quantity <= 0) {
+                cartItems.splice(idx, 1);
+            }
+            updateCart();
+            updateCartBadge();
+        }
+
+        function updateCartBadge() {
+            const total = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = total;
+        }
+
+        function updateCart() {
+            const cartDisplay = document.getElementById("cart-content");
+            const totalAmount = document.getElementById("cart-total");
+            
+            cartDisplay.innerHTML = cartItems.map((entry, idx) => `
+                <div class="cart-entry">
+                    <img src="${entry.product.image}" alt="${entry.product.name}">
+                    <div class="cart-item-details">
+                        <h4>${entry.product.name}</h4>
+                        <p>$${entry.product.price}</p>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="updateQuantity(${idx}, -1)">-</button>
+                        <span>${entry.quantity}</span>
+                        <button class="quantity-btn" onclick="updateQuantity(${idx}, 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cartItems.reduce((sum, item) => 
+                sum + (item.product.price * item.quantity), 0);
+            totalAmount.textContent = total.toFixed(2);
+        }
+
+        renderProducts();
+        updateCartBadge();
+    </script>
+</body>
+</html>
